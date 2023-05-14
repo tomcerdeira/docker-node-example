@@ -7,6 +7,9 @@ RUN apt-get update && \
 # Install Docker
 RUN curl -fsSL https://get.docker.com | sh
 
+# Create the "jenkins" user
+RUN useradd -m -s /bin/bash jenkins
+
 # Add the Jenkins user to the docker group
 RUN usermod -aG docker jenkins
 
