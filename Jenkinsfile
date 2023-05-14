@@ -19,7 +19,7 @@ pipeline {
             }
             steps {
                 // unstash 'compiled-results'
-                sh 'docker run --rm --name docker-node-example-container --publish 9000:9000 --volume $(pwd):/usr/src/app docker-node-example-image'
+                sh "docker run --rm --name docker-node-example-container --publish 9000:9000 --volume ${WORKSPACE}:/usr/src/app docker-node-example-image"
             }
         }
     }
