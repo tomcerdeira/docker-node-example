@@ -21,10 +21,10 @@ pipeline {
                 // unstash 'compiled-results'
                 script {
                     docker.withRegistry('') {
-                        docker.image('docker-node-example-image').inside {
-                            sh 'npm install'
-                            sh 'npm start'
-                        }
+                        def dockerImage = docker.image('docker-node-example-image')
+                        def container = dockerImage.run('-p 9000:9000')
+                        sh 'npm install'
+                        sh 'npm start'
                     }
                 }
             }
