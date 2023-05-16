@@ -24,7 +24,7 @@ pipeline {
                         def dockerImage = docker.image('docker-node-example-image')
                         def container = dockerImage.run('-p 9000:9000')
                         // sh 'npm install'
-                        sh 'npm start'
+                        // sh 'npm start'
                     }
                 }
             }
