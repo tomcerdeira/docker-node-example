@@ -13,6 +13,10 @@ pipeline {
             }
         }
         stage('Test') {
+            input {
+                message "Deploy to production?"
+                submitter "santi,tom"
+            }
             steps {
                 sh 'npm test'
             }
