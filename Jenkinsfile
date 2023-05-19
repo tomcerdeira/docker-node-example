@@ -18,10 +18,10 @@ pipeline {
                 submitter "santi,tom"
             }
             steps {
-                sh 'docker build --tag docker-node-example-image-TESTING .'
+                sh 'docker build --tag docker-node-example-image-testing .'
                 script {
                     docker.withRegistry('') {
-                        def dockerImage = docker.image('docker-node-example-image-TESTING')
+                        def dockerImage = docker.image('docker-node-example-image-testing')
                         def container = dockerImage.run('-p 9000:9000')
                     }
                 }
