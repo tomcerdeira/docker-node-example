@@ -14,8 +14,7 @@ pipeline {
         }
         stage('Test') {
             steps {
-                sh 'npm install'
-                sh 'npm test'
+                sh 'docker run --rm docker-node-example-image npm test'
             }
         }
         stage('Run') {
