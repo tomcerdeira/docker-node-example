@@ -12,6 +12,11 @@ pipeline {
                 sh 'docker build --tag docker-node-example-image .'
             }
         }
+        stage('Test') {
+            steps {
+                sh 'npm test'
+            }
+        }
         stage('Run') {
             input {
                 message "Deploy to production?"
