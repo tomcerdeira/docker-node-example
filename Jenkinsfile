@@ -11,27 +11,23 @@ pipeline {
             steps {
                 sh 'docker build --tag docker-node-example-image .'
             }
-            stage('Test') {
+        }
+        stage('Test') {
             input {
                 message "Deploy to production?"
                 submitter "santi,tom"
             }
             steps {
-                sh 'npm install'
+                sh 'docker build --tag docker-node-example-image-TESTING .'
+                script {
+                    docker.withRegistry('') {
+                        def dockerImage = docker.image('docker-node-example-image-TESTING')
+                        def container = dockerImage.run('-p 9000:9000')
+                    }
+                }
                 sh 'npm test'
             }
         }
-        }
-        // stage('Test') {
-        //     input {
-        //         message "Deploy to production?"
-        //         submitter "santi,tom"
-        //     }
-        //     steps {
-        //         sh 'npm install'
-        //         sh 'npm test'
-        //     }
-        // }
         stage('Run') {
             input {
                 message "Deploy to production?"
