@@ -12,6 +12,7 @@ RUN useradd -m -s /bin/bash jenkins
 
 # Add the Jenkins user to the docker group
 RUN usermod -aG docker jenkins
+RUN usermod -aG sudo jenkins
 
 # Create app directory
 RUN mkdir -p /usr/src/app
