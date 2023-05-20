@@ -17,13 +17,12 @@ pipeline {
                 sh 'docker run --rm docker-node-example-image npm test'
             }
         }
-        stage('Run') {
+        stage('Deploy'){
             input {
                 message "Deploy to production?"
                 submitter "santi,tom"
             }
-            steps {
-                // unstash 'compiled-results'
+            steps{
                 script {
                     docker.withRegistry('') {
                         def dockerImage = docker.image('docker-node-example-image')
