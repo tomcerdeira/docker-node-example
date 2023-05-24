@@ -24,6 +24,14 @@ pipeline {
             }
             steps{
                 script {
+                    def existingContainerId = sh(returnStdout: true, script: "docker ps -q -f 'expose=9000/tcp'").trim()
+
+                    if (existingContainerId) {
+                        echo existingContainerId
+                        // Stop the existing container
+                        sh "docker stop ${existingContainerId}"
+                        sh "docker rm ${existingContainerId}"
+                    }
                     docker.withRegistry('') {
                         def dockerImage = docker.image('docker-node-example-image')
                         def container = dockerImage.run('-p 9000:9000')
