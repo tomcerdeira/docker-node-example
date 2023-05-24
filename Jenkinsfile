@@ -17,28 +17,34 @@ pipeline {
                 sh 'docker run --rm docker-node-example-image npm test'
             }
         }
-        stage('Deploy'){
-            input {
-                message "Deploy to production?"
-                submitter "santi,tom"
-            }
-            steps{
-                script {
-                    def existingContainerId = sh(returnStdout: true, script: "docker ps -q -f 'expose=9000/tcp'").trim()
+    stage('Deploy') {
+        input {
+            message "Deploy to production?"
+            submitter "santi,tom"
+        }
 
-                    if (existingContainerId) {
-                        echo existingContainerId
-                        // Stop the existing container
-                        sh "docker stop ${existingContainerId}"
-                        sh "docker rm ${existingContainerId}"
-                    }
-                    docker.withRegistry('') {
-                        def dockerImage = docker.image('docker-node-example-image')
-                        def container = dockerImage.run('-p 9000:9000')
-                    }
+        steps {
+            script {
+                // Check if a container is already running on the specified port
+                def existingContainerId = sh(returnStdout: true, script: "docker ps -q -f 'expose=9000/tcp'").trim()
+                sh "docker tag docker-node-example-image:latest docker-node-example-image:previous"
+
+                if (existingContainerId) {
+                    echo existingContainerId
+                    // Stop the existing container
+                    sh "docker stop ${existingContainerId}"
+                    sh "docker rm ${existingContainerId}"
+
+                }
+
+                docker.withRegistry('') {
+                    def dockerImage = docker.image('docker-node-example-image')
+                    def container = dockerImage.run('-p 9000:9000')
                 }
             }
         }
+    }
+
     }
     
     post {
@@ -57,7 +63,17 @@ pipeline {
                           message: "Build <${BUILD_NUMBER}> from ${JOB_NAME} fail :( Link to repo: ${"<https://github.com/santigarciam/tpe-redes |GitHub>"}",
                           channel: SLACK_CHANNEL,
                           tokenCredentialId: SLACK_CREDENTIALS // OBS: Esto es el id de la credencial que tengo guardada en jenkins,
-                                                                                    //       NO es la cred en plano
+                
+                def existingContainerId = sh(returnStdout: true, script: "docker ps -q -f 'expose=9000/tcp'").trim()
+                if(!existingContainerId){                                                                    //       NO es la cred en plano
+                    def rollbackContainer = docker.image('docker-node-example-image:previous').run('-p 9000:9000')            
+                    // Check if the rollback container is running successfully
+                    if (rollbackContainer) {
+                        echo "Rollback succeeded. Previous container is running."
+                    } else {
+                        echo "Rollback failed. Please investigate and manually revert the deployment."
+                    }
+                }
             }
         }
     }
