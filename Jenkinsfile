@@ -25,22 +25,9 @@ pipeline {
         }
         steps {
             script {
-                // Check if a container is already running on the specified port
-                def existingContainerId = sh(returnStdout: true, script: "docker ps -q -f 'expose=9000/tcp'").trim()
+                // Save the last running version of the container
                 sh "docker tag docker-node-example-image:latest docker-node-example-image:previous"
-
-                if (existingContainerId) {
-                    echo existingContainerId
-                    // Stop the existing container
-                    sh "docker stop ${existingContainerId}"
-                    sh "docker rm ${existingContainerId}"
-
-                }
-
-                docker.withRegistry('') {
-                    def dockerImage = docker.image('docker-node-example-image')
-                    def container = dockerImage.run('-p 9000:9000')
-                }
+                deploy('docker-node-example-image')
             }
         }
     }
@@ -64,17 +51,38 @@ pipeline {
                           channel: SLACK_CHANNEL,
                           tokenCredentialId: SLACK_CREDENTIALS // OBS: Esto es el id de la credencial que tengo guardada en jenkins,
                 
-                def existingContainerId = sh(returnStdout: true, script: "docker ps -q -f 'expose=9000/tcp'").trim()
-                if(!existingContainerId){                                                                    //       NO es la cred en plano
-                    def rollbackContainer = docker.image('docker-node-example-image:previous').run('-p 9000:9000')            
-                    // Check if the rollback container is running successfully
-                    if (rollbackContainer) {
-                        echo "Rollback succeeded. Previous container is running."
-                    } else {
-                        echo "Rollback failed. Please investigate and manually revert the deployment."
-                    }
-                }
+                rollback('docker-node-example-image:previous')
             }
         }
     }
+}
+
+def deploy(String image = 'docker-node-example-image'){
+    // Check if a container is already running on the specified port
+    def existingContainerId = sh(returnStdout: true, script: "docker ps -q -f 'expose=9000/tcp'").trim()
+    if (existingContainerId) {
+        // Stop the existing container
+        sh "docker stop ${existingContainerId}"
+        sh "docker rm ${existingContainerId}"
+    }
+
+    docker.withRegistry('') {
+    def dockerImage = docker.image(image)
+    dockerImage.run('-p 9000:9000')
+    }
+}
+
+def rollback(String image = 'docker-node-example-image:previous'){
+// Check if the rollback container is running successfully
+    def existingContainerId = sh(returnStdout: true, script: "docker ps -q -f 'expose=9000/tcp'").trim()
+    if(!existingContainerId){                                                                  
+        def rollbackContainer = docker.image(image).run('-p 9000:9000')            
+        if (rollbackContainer) {
+            echo "Rollback succeeded. Previous container is running."
+        } else {
+            echo "Rollback failed. Please investigate and manually revert the deployment."
+        }
+    }else{
+        echo "No action needed, server is already running."
+    }     
 }
