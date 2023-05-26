@@ -2,7 +2,8 @@ pipeline {
     agent { dockerfile true }
 
     environment {
-        PROJECT           = 'tpe-redes'
+        PROJECT_NAME      = 'docker-node-example'
+        GIT_URL           = 'https://github.com/tomcerdeira/docker-node-example'
         SLACK_CHANNEL     = '#random'
         SLACK_CREDENTIALS = '3030150e-a11f-4c22-b001-0435721f1249'
     }
@@ -22,7 +23,6 @@ pipeline {
             message "Deploy to production?"
             submitter "santi,tom"
         }
-
         steps {
             script {
                 // Check if a container is already running on the specified port
@@ -51,7 +51,7 @@ pipeline {
         success {
             script {
                 slackSend color: 'good',
-                          message: "Build <${BUILD_NUMBER}> from ${JOB_NAME} succeded! Link to repo: ${"<https://github.com/santigarciam/tpe-redes |GitHub>"}",
+                          message: "Build <${BUILD_NUMBER}> from ${JOB_NAME} succeded! Link to repo: ${"<GIT_URL |GitHub>"}",
                           channel: SLACK_CHANNEL,
                           tokenCredentialId: SLACK_CREDENTIALS // OBS: Esto es el id de la credencial que tengo guardada en jenkins,
                                                                                     //       NO es la cred en plano
@@ -60,7 +60,7 @@ pipeline {
         failure {
             script {
                 slackSend color: 'red',
-                          message: "Build <${BUILD_NUMBER}> from ${JOB_NAME} fail :( Link to repo: ${"<https://github.com/santigarciam/tpe-redes |GitHub>"}",
+                          message: "Build <${BUILD_NUMBER}> from ${JOB_NAME} fail :( Link to repo: ${"<GIT_URL |GitHub>"}",
                           channel: SLACK_CHANNEL,
                           tokenCredentialId: SLACK_CREDENTIALS // OBS: Esto es el id de la credencial que tengo guardada en jenkins,
                 
