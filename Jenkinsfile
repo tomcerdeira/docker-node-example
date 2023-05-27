@@ -33,7 +33,6 @@ pipeline {
         }
     }
 
-    }
     
     post {
         success {
@@ -56,6 +55,7 @@ pipeline {
         }
     }
 }
+
 
 def deploy(String image = 'docker-node-example-image'){
     // Check if a container is already running on the specified port
@@ -86,3 +86,4 @@ def rollback(String image = 'docker-node-example-image:previous'){
         echo "No action needed, server is already running."
     }     
 }
+
