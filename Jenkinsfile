@@ -32,8 +32,6 @@ pipeline {
             }
         }
     }
-
-    }
     
     post {
         success {
