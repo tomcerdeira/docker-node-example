@@ -41,15 +41,12 @@ pipeline {
             when {
                 expression { params.DEPLOY_ENVIRONMENT == 'production' }
             }
-            input {
-                message "Deploy to production?"
-                submitter "santi,tom"
-            }
             steps {
+                input message:"Deploy to production?",submitter: "santi,tom" 
                 script {
                     // Save the last running version of the container
                     sh "docker tag docker-node-example-image:latest docker-node-example-image:previous"
-                    deploy('docker-node-example-image',"9000")
+                    deploy('docker-node-example-image', "9000")
                 }
             }
         }
