@@ -7,6 +7,14 @@ pipeline {
         SLACK_CHANNEL     = '#random'
         SLACK_CREDENTIALS = '3030150e-a11f-4c22-b001-0435721f1249' // Esto es el id de la credencial que esta guardada en jenkins
     }
+
+    parameters {
+        choice(
+            choices: ['development', 'production'],
+            description: 'Select the environment for deployment',
+            name: 'DEPLOY_ENVIRONMENT'
+        )
+    }
     stages {
         stage('Build') {
             steps {
@@ -18,7 +26,21 @@ pipeline {
                 sh 'docker run --rm docker-node-example-image npm test'
             }
         }
-        stage('Deploy') {
+        stage('Deploy - Development') {
+            when {
+                expression { params.DEPLOY_ENVIRONMENT == 'development' }
+            }
+            steps {
+                script {
+                    deploy('docker-node-example-image',"9005")
+                }
+            }
+        }
+
+        stage('Deploy - Production') {
+            when {
+                expression { params.DEPLOY_ENVIRONMENT == 'production' }
+            }
             input {
                 message "Deploy to production?"
                 submitter "santi,tom"
@@ -66,12 +88,12 @@ def deploy(String image = 'docker-node-example-image', String port = 9000) {
 
     docker.withRegistry('') {
         def dockerImage = docker.image(image)
-        dockerImage.run("-p ${port}:${port}")
+        dockerImage.run("-p ${port}:${port} -e DEPLOY_ENVIRONMENT=${params.DEPLOY_ENVIRONMENT}")
     }
 }
 
 
-def rollback(String image = 'docker-node-example-image:previous', int port = 9001){
+def rollback(String image = 'docker-node-example-image:previous', int port = 9000){
     // Check if the rollback container is running successfully
     def existingContainerId = sh(returnStdout: true, script: "docker ps -q -f 'expose=${port}/tcp'").trim()
     if(!existingContainerId){                                                                  
