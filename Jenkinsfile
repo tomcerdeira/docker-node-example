@@ -27,7 +27,7 @@ pipeline {
                 script {
                     // Save the last running version of the container
                     sh "docker tag docker-node-example-image:latest docker-node-example-image:previous"
-                    deploy('docker-node-example-image',9000)
+                    deploy('docker-node-example-image',"9000")
                 }
             }
         }
@@ -49,13 +49,13 @@ pipeline {
                           channel: SLACK_CHANNEL,
                           tokenCredentialId: SLACK_CREDENTIALS
                 
-                rollback('docker-node-example-image:previous',9001)
+                rollback('docker-node-example-image:previous',9000)
             }
         }
     }
 }
 
-def deploy(String image = 'docker-node-example-image', int port = 9000) {
+def deploy(String image = 'docker-node-example-image', String port = 9000) {
     // Check if a container is already running on the specified port
     def existingContainerId = sh(returnStdout: true, script: "docker ps -q -f 'expose=${port}/tcp'").trim()
     if (existingContainerId) {
