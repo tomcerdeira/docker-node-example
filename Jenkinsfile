@@ -27,7 +27,7 @@ pipeline {
                 script {
                     // Save the last running version of the container
                     sh "docker tag docker-node-example-image:latest docker-node-example-image:previous"
-                    deploy('docker-node-example-image')
+                    deploy('docker-node-example-image',9000)
                 }
             }
         }
@@ -49,15 +49,15 @@ pipeline {
                           channel: SLACK_CHANNEL,
                           tokenCredentialId: SLACK_CREDENTIALS
                 
-                rollback('docker-node-example-image:previous')
+                rollback('docker-node-example-image:previous',9001)
             }
         }
     }
 }
 
-def deploy(String image = 'docker-node-example-image'){
+def deploy(String image = 'docker-node-example-image', int port = 9000) {
     // Check if a container is already running on the specified port
-    def existingContainerId = sh(returnStdout: true, script: "docker ps -q -f 'expose=9000/tcp'").trim()
+    def existingContainerId = sh(returnStdout: true, script: "docker ps -q -f 'expose=${port}/tcp'").trim()
     if (existingContainerId) {
         // Stop the existing container
         sh "docker stop ${existingContainerId}"
@@ -65,16 +65,17 @@ def deploy(String image = 'docker-node-example-image'){
     }
 
     docker.withRegistry('') {
-    def dockerImage = docker.image(image)
-    dockerImage.run('-p 9000:9000')
+        def dockerImage = docker.image(image)
+        dockerImage.run("-p ${port}:${port}")
     }
 }
 
-def rollback(String image = 'docker-node-example-image:previous'){
+
+def rollback(String image = 'docker-node-example-image:previous', int port = 9001){
     // Check if the rollback container is running successfully
-    def existingContainerId = sh(returnStdout: true, script: "docker ps -q -f 'expose=9000/tcp'").trim()
+    def existingContainerId = sh(returnStdout: true, script: "docker ps -q -f 'expose=${port}/tcp'").trim()
     if(!existingContainerId){                                                                  
-        def rollbackContainer = docker.image(image).run('-p 9000:9000')            
+        def rollbackContainer = docker.image(image).run("-p ${port}:${port}")
         if (rollbackContainer) {
             echo "Rollback succeeded. Previous container is running."
         } else {
