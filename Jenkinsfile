@@ -65,8 +65,11 @@ pipeline {
                           message: "Build <${BUILD_URL}|#${BUILD_NUMBER}> from ${JOB_NAME} failed :( CHECK LOGS IN BUILD: ${"<https://github.com/tomcerdeira/docker-node-example |GitHub>"}",
                           channel: SLACK_CHANNEL,
                           tokenCredentialId: SLACK_CREDENTIALS
-                
-                rollback('docker-node-example-image:previous',9000)
+                if(params.DEPLOY_ENVIRONMENT == 'production') {
+                    rollback('docker-node-example-image:previous',9000)
+                }else{
+                    rollback('docker-node-example-image:previous',9005)
+                }
             }
         }
     }
