@@ -62,7 +62,7 @@ pipeline {
         failure {
             script {
                 slackSend color: 'red',
-                          message: "Build <${BUILD_URL}|#${BUILD_NUMBER}> from ${JOB_NAME} failed :(: ${"<https://github.com/tomcerdeira/docker-node-example |GitHub>"}",
+                          message: "Build <${BUILD_URL}|#${BUILD_NUMBER}> from ${JOB_NAME} failed :( CHECK LOGS IN BUILD: ${"<https://github.com/tomcerdeira/docker-node-example |GitHub>"}",
                           channel: SLACK_CHANNEL,
                           tokenCredentialId: SLACK_CREDENTIALS
                 
