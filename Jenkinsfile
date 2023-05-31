@@ -90,7 +90,6 @@ def deploy(String image = 'docker-node-example-image', String port = 9000) {
     }
 }
 
-
 def rollback(String image = 'docker-node-example-image:previous', int port = 9000){
     // Check if the rollback container is running successfully
     def existingContainerId = sh(returnStdout: true, script: "docker ps -q -f 'expose=${port}/tcp'").trim()
