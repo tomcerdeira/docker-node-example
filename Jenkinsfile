@@ -2,8 +2,6 @@ pipeline {
     agent { dockerfile true }
 
     environment {
-        PROJECT_NAME      = 'docker-node-example'
-        GIT_URL           = 'https://github.com/tomcerdeira/docker-node-example'
         SLACK_CHANNEL     = '#random'
         SLACK_CREDENTIALS = '3030150e-a11f-4c22-b001-0435721f1249' // Esto es el id de la credencial que esta guardada en jenkins
     }
