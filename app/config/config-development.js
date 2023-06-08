@@ -3,4 +3,3 @@ module.exports = {
     text: '<h1>Hello Word from the development stage</h1>'
     // other development-specific configuration variables
   };
-  
